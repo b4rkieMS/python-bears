@@ -9,6 +9,18 @@ import os
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+def search_azure_ai(query):
+    endpoint = os.getenv("AZURE_SEARCH_ENDPOINT")
+    key = os.getenv("AZURE_SEARCH_KEY")
+    index = os.getenv("AZURE_SEARCH_INDEX")
+    if not (endpoint and key and index):
+        return ""
+    search_client = SearchClient(endpoint, index, AzureKeyCredential(key))
+    results = search_client.search(query, top=3)
+    docs = [doc['content'] for doc in results if 'content' in doc]
+    return "\n".join(docs)
+
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
@@ -93,13 +105,36 @@ def get_openai_response(client, prompt):
     )
     return response.choices[0].message.content.strip()
 
+#@app.route("/ask", methods=["GET", "POST"])
+#def ask():
+#    answer = None
+#    if request.method == "POST":
+#        user_question = request.form.get("question")
+#        client = get_azure_openai_client()
+#        answer = get_openai_response(client, user_question)
+#    return render_template_string("""
+#        <h2>Ask Azure OpenAI</h2>
+#        <form method="post">
+#            <input name="question" placeholder="Enter your question" required>
+#            <input type="submit" value="Ask">
+#        </form>
+#        {% if answer %}
+#            <h3>Response:</h3>
+#            <p>{{ answer }}</p>
+#        {% endif %}
+#    """, answer=answer)
+
 @app.route("/ask", methods=["GET", "POST"])
 def ask():
     answer = None
     if request.method == "POST":
         user_question = request.form.get("question")
+        # Get search results from Azure AI Search
+        search_context = search_azure_ai(user_question)
         client = get_azure_openai_client()
-        answer = get_openai_response(client, user_question)
+        # Include search results as context for the AI
+        prompt = f"Context from search:\n{search_context}\n\nUser question: {user_question}"
+        answer = get_openai_response(client, prompt)
     return render_template_string("""
         <h2>Ask Azure OpenAI</h2>
         <form method="post">
