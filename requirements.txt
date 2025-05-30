@@ -3,3 +3,4 @@ msal
 dotenv-python
 openai-agents==0.0.11
 openai==1.75.0
+azure-search-documents
