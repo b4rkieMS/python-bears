@@ -3,8 +3,13 @@ from msal import ConfidentialClientApplication
 import uuid
 import os
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Use a secure secret key
+app.secret_key = os.urandom(24)
+
+# Add ProxyFix to trust Azure's proxy headers
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # Force Flask to use HTTPS in URL generation (important for Azure)
 if "WEBSITE_HOSTNAME" in os.environ:
