@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, session, request
+from flask import Flask, redirect, url_for, session, request, render_template_string
 from msal import ConfidentialClientApplication
 from openai import AzureOpenAI
 from dotenv import load_dotenv
