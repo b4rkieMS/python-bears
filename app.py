@@ -6,14 +6,18 @@ import os
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # Use a secure secret key
 
-# ...existing code...
-app = Flask(__name__)
-app.secret_key = os.urandom(24)  # Use a secure secret key
-
 # Force Flask to use HTTPS in URL generation (important for Azure)
 if "WEBSITE_HOSTNAME" in os.environ:
     app.config["PREFERRED_URL_SCHEME"] = "https"
-# ...existing code...
+
+@app.before_request
+def before_request():
+    if "WEBSITE_HOSTNAME" in os.environ and not request.is_secure:
+        url = request.url.replace("http://", "https://", 1)
+        return redirect(url, code=301)
+
+
+
 
 CLIENT_ID = os.environ.get("CLIENT_ID")
 CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
