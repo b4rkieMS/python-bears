@@ -1,7 +1,5 @@
 from flask import Flask, redirect, url_for, session, request
 from msal import ConfidentialClientApplication
-from openai import AzureOpenAI
-from dotenv import load_dotenv
 import uuid
 import os
 
@@ -71,41 +69,3 @@ def logout():
     return redirect(
         f"{AUTHORITY}/oauth2/v2.0/logout?post_logout_redirect_uri={url_for('index', _external=True)}"
     )
-
-def get_azure_openai_client():
-    load_dotenv()
-    return AzureOpenAI(
-        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-        api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-        azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
-    )
-
-def get_openai_response(client, prompt):
-    response = client.chat.completions.create(
-        model=os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT_NAME"),
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=100
-    )
-    return response.choices[0].message.content.strip()
-
-@app.route("/ask", methods=["GET", "POST"])
-def ask():
-    answer = None
-    if request.method == "POST":
-        user_question = request.form.get("question")
-        client = get_azure_openai_client()
-        answer = get_openai_response(client, user_question)
-    return render_template_string("""
-        <h2>Ask Azure OpenAI</h2>
-        <form method="post">
-            <input name="question" placeholder="Enter your question" required>
-            <input type="submit" value="Ask">
-        </form>
-        {% if answer %}
-            <h3>Response:</h3>
-            <p>{{ answer }}</p>
-        {% endif %}
-    """, answer=answer)
