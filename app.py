@@ -32,7 +32,7 @@ def login():
     auth_url = auth_app.get_authorization_request_url(
         SCOPE,
         state=session["state"],
-        redirect_uri=url_for("authorized", _external=True)
+        redirect_uri=url_for("authorized", _external=True, _scheme="https")
     )
     return redirect(auth_url)
 
