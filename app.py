@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import uuid
 import os
 
-from werkzeug.middleware.proxy_fix import ProxyFixgit 
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
