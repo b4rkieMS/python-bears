@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import uuid
 import os
 
-from werkzeug.middleware.proxy_fix import ProxyFix
+from werkzeug.middleware.proxy_fix import ProxyFixgit 
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -84,7 +84,7 @@ def get_openai_response(client, prompt):
     response = client.chat.completions.create(
         model=os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT_NAME"),
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": "You are a helpful assistant. You speak French only."},
             {"role": "user", "content": prompt}
         ],
         max_tokens=100
