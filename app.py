@@ -2,6 +2,8 @@ from flask import Flask, redirect, url_for, session, request, render_template_st
 from msal import ConfidentialClientApplication
 from openai import AzureOpenAI
 from dotenv import load_dotenv
+from azure.search.documents import SearchClient
+from azure.core.credentials import AzureKeyCredential
 import uuid
 import os
 
